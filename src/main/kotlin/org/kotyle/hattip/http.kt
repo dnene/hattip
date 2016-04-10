@@ -39,7 +39,6 @@ class HttpConnection(val request: Request, val con: HttpURLConnection, val expec
         try {
             val responseCode = con.responseCode
             log.debug("Http Get for ${request.url} returned $responseCode")
-            val headerFields = con.headerFields
             val buffer = ByteArrayOutputStream()
             if (responseCode == 200) {
                 val input = con.inputStream
@@ -118,8 +117,8 @@ class Request(val url: URL,
     fun connect(): HttpConnection {
         val queryStr = params.map{
             URLEncoder.encode(it.first, StandardCharsets.UTF_8.name()) + "=" +
-                    URLEncoder.encode(it.second, StandardCharsets.UTF_8.name())}?.joinToString("&")
-        val fullUrl = if(queryStr == null || queryStr.trim().length == 0) url else URL(url.toString() + "?" + queryStr)
+                    URLEncoder.encode(it.second, StandardCharsets.UTF_8.name())}.joinToString("&")
+        val fullUrl = if(queryStr.trim().length == 0) url else URL(url.toString() + "?" + queryStr)
         val con = fullUrl.openConnection()
         headers.forEach { con.addRequestProperty(it.first, it.second) }
         credentials.map {
@@ -128,7 +127,7 @@ class Request(val url: URL,
         }
         if (con !is HttpURLConnection) throw IllegalArgumentException("URL is not http/https URL ${url}")
         con.requestMethod = method.name.toUpperCase()
-        return HttpConnection(this, con as HttpURLConnection, expectations)
+        return HttpConnection(this, con, expectations)
     }
 
     fun perform(): Either<HttpError, Response> = connect().response()
