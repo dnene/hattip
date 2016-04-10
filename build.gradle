@@ -1,0 +1,68 @@
+ext {
+    junit_version = '4.12'
+}
+
+buildscript {
+    ext.kotlin_version = '1.0.1-2'
+    ext.dokka_version = "0.9.7"
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+
+apply plugin: 'java'
+apply plugin: 'kotlin'
+apply plugin: 'maven'
+apply plugin: 'org.jetbrains.dokka'
+
+group 'org.kotyle'
+version '0.0.1'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+
+sourceCompatibility = 1.8
+
+dokka {
+    moduleName = 'hattip'
+    outputFormat = 'javadoc'
+    outputDirectory = "$buildDir/javadoc"
+    // processConfigurations = ['compile', 'extra']
+    includes = ['packages.md', 'extra.md']
+    //samples = ['samples/basic.kt', 'samples/advanced.kt']
+    // linkMapping {
+        // dir = "src/main/kotlin"
+        // url = "https://github.com/dnene/kotyle/hattip/tree/master/src/main/kotlin/"
+        // suffix = "#L"
+    // }
+    //sourceDirs = files('src/main/kotlin')
+}
+
+task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
+    outputFormat = 'javadoc'
+    outputDirectory = "$buildDir/javadoc"
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version",
+            "ch.qos.logback:logback-classic:1.1.6",
+            "org.kotyle:kylix:0.0.1"
+
+    testCompile "junit:junit:${junit_version}",
+            "org.nanohttpd:nanohttpd:2.2.0"
+}
+
+sourceSets {
+  main.java.srcDirs += 'src/main/kotlin'
+  test.java.srcDirs += 'src/test/kotlin'
+}
+
